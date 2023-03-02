@@ -1,0 +1,39 @@
+- hosts: "{{ env_name }}"
+  become: yes
+  gather_facts: false
+  vars_files:
+    - vars/filebeat.yml
+  tasks:
+    - name: Add Elasticsearch GPG key.
+      rpm_key:
+        key: https://packages.elastic.co/GPG-KEY-elasticsearch
+        state: present
+
+    - name: Add Filebeat repository.
+      template:
+        src: elasticsearch.repo.j2
+        dest: /etc/yum.repos.d/elasticsearch.repo
+        mode: 0644
+
+    - name: Install Filebeat.
+      package:
+        name: filebeat
+        state: present
+
+    - name: Copy Filebeat configuration.
+      template:
+        src: "filebeats.yml.j2"
+        dest: "/etc/filebeat/filebeat.yml"
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Ensure Filebeat is started and enabled at boot.
+      service:
+        name: filebeat
+        state: restarted
+        enabled: true
+
+   
+
+  

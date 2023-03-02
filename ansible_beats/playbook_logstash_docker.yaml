@@ -1,0 +1,39 @@
+- hosts: "{{ env_name }}"
+  become: yes
+  gather_facts: false
+  tasks:
+    - name: docker images
+      shell: docker pull docker.elastic.co/logstash/logstash:7.17.9
+
+    - name: Create a directory if it does not exist
+      file:
+        path: /etc/logstash_config
+        state: directory
+        mode: '0755'
+
+    - name: Copy logstash conf
+      template:
+        src: 'logstash.conf.j2'
+        dest: '/etc/logstash_config/logstash.conf'
+    
+    - name: Copy logstash configs
+      template:
+        src: 'logstash.yml.j2'
+        dest: '/etc/logstash_config/logstash.yml'
+
+    - name: Run container logstash and config
+      shell: docker run -d -p 5044:5044 -v /etc/logstash_config/logstash.conf:/usr/share/logstash/pipeline/logstash.conf -v /etc/logstash_config/logstash.yml:/usr/share/logstash/config/logstash.yml --name logstash docker.elastic.co/logstash/logstash:7.17.9
+    
+
+    # - name: Copy logstash configs  
+    #   shell: | 
+    #     docker cp /etc/logstash_config/logstash.yml logstash:/usr/share/logstash/config/logstash.yml
+    
+    - name: Start container 
+      shell: | 
+        docker start logstash
+
+
+
+    
+  

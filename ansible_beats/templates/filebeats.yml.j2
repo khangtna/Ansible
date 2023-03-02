@@ -1,0 +1,13 @@
+filebeat.inputs:
+- input_type: log
+  paths:
+    - /var/log/td-agent/td-agent.log
+
+document_type: apache-access
+processors:
+   - drop_fields:
+      fields: [ "ecs", "agent", "log", "tags"]
+      ignore_missing: false
+
+output.logstash:
+  hosts: {{ logstash.hosts }}

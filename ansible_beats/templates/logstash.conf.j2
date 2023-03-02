@@ -1,0 +1,23 @@
+input {
+    beats {
+        port => 5044
+        ssl => false
+      }
+}
+
+filter {
+    mutate {
+        remove_field => [ "tags"]
+    }
+}
+
+output {
+    elasticsearch {
+         hosts => ["172.16.4.45:9200"]
+         user => "td-agent"
+         password => "aJtK29az9mzTSMi"
+         manage_template => false
+        index => "fluentd-%{+YYYY.MM.dd}"
+    }
+    stdout {codec => rubydebug}
+}
