@@ -1,0 +1,26 @@
+- hosts: "{{ env_name }}"
+  become: yes
+  gather_facts: false
+  tasks:
+    - name: Copy file bash check_uptime
+      template:
+        src: check_uptime.sh
+        dest: /usr/lib64/nagios/plugins/check_uptime.sh
+        mode: +x
+
+    - name: Add nrpe commmand
+      ansible.builtin.lineinfile:
+        path: /etc/nrpe.d/commands.cfg
+        regexp: '^command\[check_uptime\]'
+        line: command[check_uptime]=/usr/lib64/nagios/plugins/check_uptime.sh
+        create: yes
+
+    - name: Reload service nrpe
+      service:
+        name: nrpe
+        state: reloaded
+
+
+   
+
+  
